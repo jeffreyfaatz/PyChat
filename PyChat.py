@@ -8,6 +8,7 @@ HOST = "127.0.0.1"
 PORT = 5005
 client.connect((HOST, PORT))
 
+# exit button class
 class ToplevelWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,32 +80,39 @@ class App(customtkinter.CTk):
         self.exit_button.grid(row=6, column=0, padx=20, pady=(10, 20))
         
         # main entry
+        # message tabs
         self.tabview = customtkinter.CTkTabview(self, width=600)
         self.tabview.grid(row=0, rowspan=3, column=1, columnspan=2, padx=20, pady=(10, 20), sticky="nsew")
 
         self.tabview.add("All")
         self.tabview.set("All")
-
+        
+        # message entry box
         self.entry = customtkinter.CTkEntry(self, placeholder_text="Enter message")
         self.entry.grid(row=3, column=1, padx=(20, 0), pady=(20, 20), sticky="nsew")
         
+        # SEND button
         self.main_button = customtkinter.CTkButton(master=self, text="Send", command=self.send_message)
         self.main_button.grid(row=3, column=2, padx=(20, 20), pady=(20, 20))
         
         # set default values
         self.appearance_mode_optionmenu.set("Dark")
         self.scaling_optionmenu.set("100%")
+
+        # name input box
         name_dialog = customtkinter.CTkInputDialog(text="What is your name:", title="PyChat")
         name = name_dialog.get_input()
         if name == "":
             exit()
         self.set_name(name=name)
 
+        # threading
         recv_thread = threading.Thread(target=self.recv_message)
         recv_thread.daemon = True
         recv_thread.start()
         self.toplevel_window = None
 
+    # exit button/window function
     def exit_app(self):
        if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
            self.toplevel_window = ToplevelWindow(self)
@@ -112,16 +120,19 @@ class App(customtkinter.CTk):
        else:
            self.toplevel_window.focus()
 
+    # clear chat function
     def clear_chat(self):
         current_tab = self.tabview.get()
         for widget in self.tabview.tab(current_tab).grid_slaves():
             widget.grid_forget() 
-           
+
+    # set user name form pop up window function       
     def set_name(self, name):
         client.send(name.encode('utf-8'))
         self.name = name
         self.logo_label.configure(text=name)
 
+    # send message to server function
     def send_message(self):
         message = self.entry.get()
         if len(message) > 0:
@@ -132,6 +143,7 @@ class App(customtkinter.CTk):
             detailed_message = self.tabview.get() + "--" + message
             client.send(detailed_message.encode('utf8'))
 
+    # receive message from server function
     def recv_message(self):
         while True:
             server_message = client.recv(1024).decode('utf8')
@@ -166,10 +178,12 @@ class App(customtkinter.CTk):
                 for us in self.users.split(","):
                     if us != self.name:
                         self.tabview.add(us)
-                        
+    
+    # theme drop down menu
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
 
+    # scaling drop down menu
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         customtkinter.set_widget_scaling(new_scaling_float)
