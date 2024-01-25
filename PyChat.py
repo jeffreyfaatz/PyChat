@@ -40,7 +40,7 @@ class App(customtkinter.CTk):
         self.name = None
         self.message_counter = 1
         self.chat_counter = 2
-        self.resizable(width=False, height=False)
+        self.resizable(width=True, height=True)
         self.title("PyChat Messaging App")
         self.geometry(f"{900}x{580}")
         
