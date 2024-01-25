@@ -1,6 +1,7 @@
 import socket
 import customtkinter
 import threading
+import random
 
 # TCP connection
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,6 +39,8 @@ class App(customtkinter.CTk):
         self.sent_message = None
         self.received_message = None
         self.name = None
+        self.available_colors = ["#00FFFF", "#00FF00", "#0000FF", "#FFFF00", "#00FFFF", "#FF9900"]
+        self.client_colors = {}
         self.message_counter = 1
         self.chat_counter = 2
         self.resizable(width=True, height=True)
@@ -143,6 +146,16 @@ class App(customtkinter.CTk):
             detailed_message = self.tabview.get() + "--" + message
             client.send(detailed_message.encode('utf8'))
 
+    # randomly pick a color from the list
+    def get_random_color(self):
+        if self.available_colors:
+            chosen_color = random.choice(self.available_colors)
+            self.available_colors.remove(chosen_color)
+            return chosen_color
+        else:
+            # fallback color if no available colors
+            return "#808080"
+
     # receive message from server function
     def recv_message(self):
         while True:
@@ -151,24 +164,31 @@ class App(customtkinter.CTk):
             message_array = server_message.split("--")
             if len(message_array) > 2:
                 if message_array[1] == "All":
+                    # assign a random color to the new client's messages
+                    if message_array[0] not in self.client_colors:
+                        self.client_colors[message_array[0]] = self.get_random_color()
+
                     self.received_message = customtkinter.CTkLabel(self.tabview.tab("All"),
                                                                    text=message_array[0] + ": " + message_array[2],
                                                                    width=840,
-                                                                   font=customtkinter.CTkFont(size=14),
+                                                                   font=customtkinter.CTkFont(size=14, weight="bold"),
                                                                    text_color=("gray10", "#DCE4EE"),
                                                                    anchor="w")
                     self.received_message.grid(row=self.message_counter, column=1, columnspan=2, padx=(10, 10),
                                                sticky="nsew")
-                    self.message_counter = self.message_counter + 1
+                    # set the text color for the new client's messages
+                    self.received_message.configure(text_color=self.client_colors[message_array[0]])
+
+                    self.message_counter += 1
                 elif message_array[1] == self.name:
                     self.received_message = customtkinter.CTkLabel(self.tabview.tab(message_array[0]),
                                                                    text=message_array[2], width=840,
-                                                                   font=customtkinter.CTkFont(size=14),
+                                                                   font=customtkinter.CTkFont(size=14, weight="bold"),
                                                                    text_color="red",
                                                                    anchor="w")
                     self.received_message.grid(row=self.message_counter, column=1, columnspan=2, padx=(10, 10),
                                                sticky="nsew")
-                    self.message_counter = self.message_counter + 1
+                    self.message_counter += 1
             if server_message.startswith("new_client-"):
                 self.tabview.add(server_message.split("-")[1])
             elif server_message.startswith("exit_client-"):
