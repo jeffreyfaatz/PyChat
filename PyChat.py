@@ -5,7 +5,7 @@ import random
 
 # TCP connection
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-HOST = "127.0.0.1"
+HOST = "127.0.0.1" # change to public IP of server if not being used on a local network
 PORT = 5005
 client.connect((HOST, PORT))
 
