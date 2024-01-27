@@ -142,7 +142,7 @@ class App(customtkinter.CTk):
             self.entry.delete(0, len(message))
             self.sent_message = customtkinter.CTkLabel(self.tabview.tab(self.tabview.get()), text=message + "\n", width=840, font=customtkinter.CTkFont(size=14), text_color=("gray10", "#DCE4EE"), anchor="e")
             self.sent_message.grid(row=self.message_counter, column=1, columnspan=2, padx=(10, 10), sticky="nsew")
-            self.message_counter = self.message_counter + 1
+            self.message_counter += 1
             detailed_message = self.tabview.get() + "--" + message
             client.send(detailed_message.encode('utf8'))
 
