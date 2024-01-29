@@ -79,7 +79,7 @@ class App(customtkinter.CTk):
         self.scaling_optionmenu.grid(row=5, column=0, padx=20, pady=(10, 20))
         self.scaling_optionmenu.set(self.current_scaling)
         
-        self.exit_button = customtkinter.CTkButton(self.sidebar_frame, text="Exit", hover_color="Red", command=self.exit_app)
+        self.exit_button = customtkinter.CTkButton(self.sidebar_frame, text="Exit", hover_color="Yellow", command=self.exit_app)
         self.exit_button.grid(row=6, column=0, padx=20, pady=(10, 20))
         
         # main entry
